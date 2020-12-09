@@ -73,12 +73,12 @@ def monte_carlo_ising(Q,N,kT,lattice):
 
 
 N = 10
-Q = 100000
+Q = 1000000
 J = 1
 #sample from 40 temperatures 
 kT_list = np.linspace(1,3.5,40)
 
-pp = PdfPages('plots/magnetization_per_T.pdf')
+pp = PdfPages('magnetization_per_T.pdf')
 
 for kT in kT_list:
 	print('Generating for T = ',kT)
