@@ -36,21 +36,34 @@ def monte_carlo_ising(Q,N,kT,lattice):
 			#print('right')
 			E_i+=-(lattice[i,j]*lattice[i,j+1])
 			E_f+=-(test_lattice[i,j]*test_lattice[i,j+1])
+		elif(j==N-1):
+			E_i+=-(lattice[i,j]*lattice[i,0])
+			E_f+=-(test_lattice[i,j]*test_lattice[i,0])
 		#check left
 		if(j!=0):
 			#print('left')
 			E_i+=-(lattice[i,j]*lattice[i,j-1])
 			E_f+=-(test_lattice[i,j]*test_lattice[i,j-1])
+		elif(j==0):
+			E_i+=-(lattice[i,j]*lattice[i,N-1])
+			E_f+=-(test_lattice[i,j]*test_lattice[i,N-1])
 		#check top 
 		if(i!=0):
 			#print('top')
 			E_i+=-(lattice[i,j]*lattice[i-1,j])
 			E_f+=-(test_lattice[i,j]*test_lattice[i-1,j])
+		elif(i==0):
+			E_i+=-(lattice[i,j]*lattice[N-1,j])
+			E_f+=-(test_lattice[i,j]*test_lattice[N-1,j])
 		#check bottom
 		if(i!=N-1):
 			#print('bottom')
 			E_i+=-(lattice[i,j]*lattice[i+1,j])
 			E_f+=-(test_lattice[i,j]*test_lattice[i+1,j])
+		elif(i==N-1):
+			E_i+=-(lattice[i,j]*lattice[0,j])
+			E_f+=-(test_lattice[i,j]*test_lattice[0,j])
+
 
 		#make the choice 
 		#print('E_i = ',E_i)
@@ -72,9 +85,10 @@ def monte_carlo_ising(Q,N,kT,lattice):
 	return ising[:accept+1],mag[:accept+1]
 
 
-N_list = [20,30,40]
-Q = 1000000
+N_list = [10,20,30,40]
+Q = 2000000
 J = 1
+date = 'dec9'
 
 for N in N_list:
 
@@ -82,7 +96,7 @@ for N in N_list:
 	#sample from 40 temperatures 
 	kT_list = np.linspace(1,3.5,40)
 
-	pp = PdfPages('magnetization_per_T_N%i.pdf'%(N))
+	pp = PdfPages('mag_per_T_N%i_%s.pdf'%(N,date))
 
 	for kT in kT_list:
 		print('Generating for T = ',kT)
@@ -91,7 +105,7 @@ for N in N_list:
 		#print(lattice)
 		ising_config, mag = monte_carlo_ising(Q,N,kT,lattice)
 
-		plt.hist(mag, bins=np.arange(-1,1,0.01), histtype='step', density=True,linewidth=2)
+		plt.hist(mag, bins=np.arange(-1,1,0.05), histtype='step', density=True,linewidth=2)
 		plt.title('Probability of magnetization for T = %0.2f'%(kT))
 		plt.xlabel('magnetization')
 		pp.savefig()
