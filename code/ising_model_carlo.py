@@ -103,9 +103,9 @@ def generate_data_perN(N,date,n_per_T,n_temps,T_c):
 		#Start off with a random config
 		lattice = rng.choice([1, -1], size=(N, N))
 		
-		if(kT_list[index]<1.35):
-			Q = 50000000
-		elif(kT_list[index]<2.3):
+		if(kT_list[index]<2.):
+			Q = 100000000
+		elif(kT_list[index]<2.4):
 			Q = 2000000
 		else:
 			Q = 500000
