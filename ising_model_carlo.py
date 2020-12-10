@@ -11,6 +11,7 @@ import numpy.random as rng
 import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
+import time
 
 @jit
 def monte_carlo_ising(Q,N,kT,lattice):
@@ -86,12 +87,12 @@ def monte_carlo_ising(Q,N,kT,lattice):
 
 
 N_list = [10,20,30,40]
-Q = 2000000
+Q = 1000000
 J = 1
 date = 'dec9'
-
+end = 0
 for N in N_list:
-
+	start = time.clock()
 	print("=================== N = %i ==================="%(N))
 	#sample from 40 temperatures 
 	kT_list = np.linspace(1,3.5,40)
@@ -103,6 +104,12 @@ for N in N_list:
 		#Start off with a random config
 		lattice = rng.choice([1, -1], size=(N, N))
 		#print(lattice)
+		if(kT<1.35):
+			Q = 100000000
+		elif(kT<2.3):
+			Q = 2000000
+		else:
+			Q = 500000
 		ising_config, mag = monte_carlo_ising(Q,N,kT,lattice)
 
 		plt.hist(mag, bins=np.arange(-1,1,0.05), histtype='step', density=True,linewidth=2)
@@ -112,5 +119,8 @@ for N in N_list:
 		plt.close()
 
 	pp.close()
+	print('for N = %i time taken = %0.2f secs'%(N,time.clock()-start))
+	end+=time.clock()-start
+print('total time taken for MC generation = ',end)
 
 
