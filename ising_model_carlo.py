@@ -21,20 +21,20 @@ def monte_carlo_ising(Q,N,kT,lattice):
 	accept = 0
 
 	for index in range(0,Q):
+
 		E_i,E_f=0,0
 		#generate a random no i and j for index of spin to be flipped
 		i,j,r = rng.randint(0,N), rng.randint(0,N), rng.uniform(0,1)
-		##print('===============================')
-		##print(i,j,r)
+	
 		test_lattice = np.copy(lattice)
 		#flip
 		test_lattice[i,j] = -test_lattice[i,j]
 		
 		#Compute energy for both configs
-		#numpy is modifying the original too
+		
+
 		#check right
 		if(j!=N-1):
-			#print('right')
 			E_i+=-(lattice[i,j]*lattice[i,j+1])
 			E_f+=-(test_lattice[i,j]*test_lattice[i,j+1])
 		elif(j==N-1):
@@ -42,7 +42,6 @@ def monte_carlo_ising(Q,N,kT,lattice):
 			E_f+=-(test_lattice[i,j]*test_lattice[i,0])
 		#check left
 		if(j!=0):
-			#print('left')
 			E_i+=-(lattice[i,j]*lattice[i,j-1])
 			E_f+=-(test_lattice[i,j]*test_lattice[i,j-1])
 		elif(j==0):
@@ -50,7 +49,6 @@ def monte_carlo_ising(Q,N,kT,lattice):
 			E_f+=-(test_lattice[i,j]*test_lattice[i,N-1])
 		#check top 
 		if(i!=0):
-			#print('top')
 			E_i+=-(lattice[i,j]*lattice[i-1,j])
 			E_f+=-(test_lattice[i,j]*test_lattice[i-1,j])
 		elif(i==0):
@@ -58,7 +56,6 @@ def monte_carlo_ising(Q,N,kT,lattice):
 			E_f+=-(test_lattice[i,j]*test_lattice[N-1,j])
 		#check bottom
 		if(i!=N-1):
-			#print('bottom')
 			E_i+=-(lattice[i,j]*lattice[i+1,j])
 			E_f+=-(test_lattice[i,j]*test_lattice[i+1,j])
 		elif(i==N-1):
@@ -67,12 +64,7 @@ def monte_carlo_ising(Q,N,kT,lattice):
 
 
 		#make the choice 
-		#print('E_i = ',E_i)
-		#print(lattice)
-		#print('E_f = ',E_f)
-		#print(test_lattice)
 		delE = E_f - E_i 
-		#print('delE = ',delE)
 		if(delE < 0 or (delE >= 0 and r < np.exp(-delE/kT))):
 			lattice = np.copy(test_lattice)
 			ising[accept] = lattice
@@ -82,45 +74,100 @@ def monte_carlo_ising(Q,N,kT,lattice):
 			#M = (N_plus - N_minus)/(N*N)
 			mag[accept] = (2*np.sum(lattice.clip(0,1))-(N*N))/(N*N)
 			accept+=1
+
 	print('accept = ',accept)
 	return ising[:accept+1],mag[:accept+1]
 
+@jit
+def generate_data_perN(N,date,n_per_T,n_temps,T_c):
 
-N_list = [10,20,30,40]
-Q = 1000000
-J = 1
-date = 'dec9'
-end = 0
-for N in N_list:
-	start = time.clock()
+	Q = 10000 #for testing
+
+	ising_config = np.zeros((n_per_T*n_temps,N,N))
+	mag = np.zeros((n_per_T*n_temps,1))	
+	temp = np.zeros((n_per_T*n_temps,1))	
+	#label T < T_c = 1, T > T_c = 0
+	label = np.zeros((n_per_T*n_temps,1))	
+
 	print("=================== N = %i ==================="%(N))
 	#sample from 40 temperatures 
-	kT_list = np.linspace(1,3.5,40)
+	kT_list = np.linspace(1,3.5,n_temps)
 
-	pp = PdfPages('mag_per_T_N%i_%s.pdf'%(N,date))
+	pp = PdfPages('mag_perT_N%i_%s.pdf'%(N,date))
 
-	for kT in kT_list:
-		print('Generating for T = ',kT)
+	start = time.clock()
+	for index in range(len(kT_list)):
+
+		print('Generating for T = ',kT_list[index])
 		#Start off with a random config
 		lattice = rng.choice([1, -1], size=(N, N))
-		#print(lattice)
+		'''
 		if(kT<1.35):
-			Q = 100000000
+			Q = 50000000
 		elif(kT<2.3):
 			Q = 2000000
 		else:
 			Q = 500000
-		ising_config, mag = monte_carlo_ising(Q,N,kT,lattice)
+		'''
+		ising_config_perT, mag_perT = monte_carlo_ising(Q,N,kT_list[index],lattice)
 
-		plt.hist(mag, bins=np.arange(-1,1,0.05), histtype='step', density=True,linewidth=2)
-		plt.title('Probability of magnetization for T = %0.2f'%(kT))
+		step_size = int(len(ising_config_perT)/n_per_T)
+		ising_config[(index*n_per_T):(n_per_T*(index+1))] = ising_config_perT[1::step_size]
+		mag[(index*n_per_T):(n_per_T*(index+1))] = mag_perT[1::step_size]
+		temp[(index*n_per_T):(n_per_T*(index+1))] = kT_list[index]
+		if(kT_list[index]<T_c):
+			label[(index*n_per_T):(n_per_T*(index+1))] = 1
+
+		plt.hist(mag_perT, bins=np.arange(-1,1,0.05), histtype='step', density=True,linewidth=2)
+		plt.title('Probability of magnetization for T = %0.2f'%(kT_list[index]))
 		plt.xlabel('magnetization')
 		pp.savefig()
 		plt.close()
 
 	pp.close()
-	print('for N = %i time taken = %0.2f secs'%(N,time.clock()-start))
-	end+=time.clock()-start
-print('total time taken for MC generation = ',end)
+
+	end = time.clock()-start
+	print('for N = %i, MC generation time taken = %0.2f secs'%(N,end))
+
+	return ising_config,mag,temp,label,end
+
+def create_datasets(f,ising_config,mag,temp,label,dset_type):
+	
+	ising_dset = f.create_dataset("%s_ising"%(dset_type), np.shape(ising_config), data=ising_config)
+	mag_dset = f.create_dataset("x", np.shape(mag), data=mag)
+	temp_dset = f.create_dataset("y", np.shape(temp), data=temp)
+	label_dset = f.create_dataset("cota", np.shape(label), data=label)
+
+	print("made %s h5 file. no. of events to %s on: %i"%(dset_type,dset_type,len(label)))
+
+N_list = [10]
+J = 1
+date = 'dec9'
+end = 0
+n_per_T = 20
+n_temps = 40
+T_c = 2.268
+n_train = int(n_per_T*n_temps*0.75) #75% of matrices will be for train+val
+n_test = n_per_T*n_temps - n_train
+
+for N in N_list:
+
+	ising_config,mag,temp,label,time_perN = generate_data_perN(N,date,n_per_T,n_temps,T_c)
+	end+=time_perN
+
+	#shuffle entries
+	x = np.arange(0,n_per_T*n_temps,n_per_T*n_temps)
+	p = rng.permutation(x)
+	ising_config,mag,temp,label = ising_config[p],mag[p],temp[p],label[p]	
+
+	#create h5 files
+	#remember configs are being stored as NxN
+	#need to flatten for DNN or reshape for CNN
+	f = h5py.File("train_N%i_%s.hdf5"%(N,date), "w")
+	create_datasets(f,ising_config[:n_train],mag[:n_train],temp[:n_train],label[:n_train],'train')
+	f = h5py.File("test_N%i_%s.hdf5"%(N,date), "w")
+	create_datasets(f,ising_config[n_train:],mag[n_train:],temp[n_train:],label[n_train:],'test')
+
+print('total time taken for MC generation = ',time_perN)
 
 
