@@ -15,7 +15,7 @@ import time
 import h5py
 
 @jit
-def monte_carlo_ising(Q,N,kT,lattice):
+def monte_carlo_ising(Q,N,kT):
 
 	ising = np.zeros((Q,N,N))
 	mag = np.zeros((Q,1))
@@ -23,7 +23,8 @@ def monte_carlo_ising(Q,N,kT,lattice):
 
 	for index in range(0,Q):
 		
-		if(index%1000000==0):
+		if(index%100000==0):
+			lattice = rng.choice([1, -1], size=(N, N))
 			print(index)
 		E_i,E_f=0,0
 		#generate a random no i and j for index of spin to be flipped
@@ -96,16 +97,17 @@ def generate_data_perN(N,date,n_per_T,n_temps,T_c):
 
 		print('Generating for T = ',kT_list[index])
 		#Start off with a random config
-		lattice = rng.choice([1, -1], size=(N, N))
+		
+		#lattice = rng.choice([1, -1], size=(N, N))
 		
 		if(kT_list[index]<2.):
-			Q = 100000000
+			Q = 10000000
 		elif(kT_list[index]<2.4):
-			Q = 3000000
+			Q = 1000000
 		else:
 			Q = 700000
 		
-		ising_config_perT, mag_perT = monte_carlo_ising(Q,N,kT_list[index],lattice)
+		ising_config_perT, mag_perT = monte_carlo_ising(Q,N,kT_list[index])
 
 		#sample configs evenly spaced
 		idx = np.round(np.linspace(0, len(ising_config_perT) - 1, n_per_T)).astype(int)
@@ -139,12 +141,12 @@ def create_datasets(f,ising_config,mag,temp,label,dset_type):
 
 N_list = [10]
 J = 1
-date = 'dec10'
+date = 'dec11'
 end = 0
-n_per_T = 30000
+n_per_T = 25000
 n_temps = 40
 T_c = 2.268
-n_train = int(n_per_T*n_temps*0.75) #75% of matrices will be for train+val
+#n_train = int(n_per_T*n_temps*0.75) #75% of matrices will be for train+val
 n_test = n_per_T*n_temps - n_train
 
 for N in N_list:
@@ -160,9 +162,9 @@ for N in N_list:
 	#remember configs are being stored as NxN
 	#need to flatten for DNN or reshape for CNN
 	f = h5py.File("h5_files/train_N%i_%s.hdf5"%(N,date), "w")
-	create_datasets(f,ising_config[:n_train],mag[:n_train],temp[:n_train],label[:n_train],'train')
-	f = h5py.File("h5_files/test_N%i_%s.hdf5"%(N,date), "w")
-	create_datasets(f,ising_config[n_train:],mag[n_train:],temp[n_train:],label[n_train:],'test')
+	create_datasets(f,ising_config,mag,temp,label,'train')
+	#f = h5py.File("h5_files/test_N%i_%s.hdf5"%(N,date), "w")
+	#create_datasets(f,ising_config[n_train:],mag[n_train:],temp[n_train:],label[n_train:],'test')
 
 print('total time taken for MC generation = ',time_perN)
 
