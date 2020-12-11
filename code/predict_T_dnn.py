@@ -23,7 +23,7 @@ import time
 from keras.callbacks import EarlyStopping
 
 N = 10
-h5_date = "dec9"
+h5_date = "dec10"
 img_ext = "dec10"
 
 # Load data
@@ -61,7 +61,7 @@ label = Activation("sigmoid", name="x")(x)
 
 
 
-model = Model(inputs=inputs
+model = Model(inputs=inputs,
               outputs=label
               )
 
@@ -73,7 +73,7 @@ model.summary()
 # Compile the model
 model.compile(loss=loss_function,
               optimizer=optimizer,
-              metrics='accuracy'
+              metrics=['accuracy']
               )
 
 callbacks = [
