@@ -68,14 +68,14 @@ model = Model(inputs=inputs,
  # Display a model summary
 model.summary()
 
-#history = model.load_weights("checkpoints/cp_%s.ckpt"%(img_ext))
+history = model.load_weights("checkpoints/cp_%s.ckpt"%(img_ext))
 
 # Compile the model
 model.compile(loss=loss_function,
               optimizer=optimizer,
               metrics=['accuracy']
               )
-
+'''
 callbacks = [
 EarlyStopping(patience=2),
 ModelCheckpoint(filepath="checkpoints/cp_%s.ckpt"%(img_ext),
@@ -89,7 +89,7 @@ history = model.fit(ising_train, label_train,
                 epochs=n_epochs,
                 callbacks=callbacks,
                 validation_split=validation_split)
-
+'''
 # Generate generalization metrics
 print("training time ",time.clock()-train_time_s)
 
@@ -100,3 +100,16 @@ print('accuracy = ',accuracy)
 
 #plot avg output layer prediction per T
 #plot avg accuracy per T 
+
+T_list = np.linspace(1, 3.5, 40)
+
+for index in len(T_list):
+  idx = np.argwhere(temp_test==T)[:,0]
+  output_per_T[index]=np.mean(label_pred[idx])
+
+plt.plot(T_list,output_per_T,'o-')
+plt.xlabel('T/J')
+plt.ylabel('Output layer')
+plt.title('Output layer predictions for N = %i'%(N))
+plt.savefig("plots/output_per_T_N%i"%(N))
+plt.close()
