@@ -103,9 +103,12 @@ print('accuracy = ',accuracy)
 
 T_list = np.linspace(1, 3.5, 40)
 output_per_T = np.zeros((40,1))
+accuracy_per_T = np.zeros((40,1))
+
 for index in range(len(T_list)):
   idx = np.argwhere(temp_test==T_list[index])[:,0]
   output_per_T[index]=np.mean(label_pred[idx])
+  loss_vals, accuracy_per_T[index] = model.evaluate(ising_test[idx],label_test[idx])
 
 Tc = 2.268
 
@@ -117,4 +120,13 @@ plt.ylabel('Output layer')
 plt.title('Output layer predictions for N = %i'%(N))
 plt.legend()
 plt.savefig("plots/output_per_T_N%i"%(N))
+plt.close()
+
+plt.plot(T_list,accuracy_per_T,'o-')
+plt.plot([Tc,Tc],[0,1],label='Tc = 2.268')
+plt.xlabel('T/J')
+plt.ylabel('Accuracy')
+plt.title('Accuracy per T for N = %i'%(N))
+plt.legend()
+plt.savefig("plots/accuracy_per_T_N%i"%(N))
 plt.close()
