@@ -99,11 +99,11 @@ def generate_data_perN(N,date,n_per_T,n_temps,T_c):
 		lattice = rng.choice([1, -1], size=(N, N))
 		
 		if(kT_list[index]<2.):
-			Q = 80000000
+			Q = 100000000
 		elif(kT_list[index]<2.4):
 			Q = 3000000
 		else:
-			Q = 600000
+			Q = 700000
 		
 		ising_config_perT, mag_perT = monte_carlo_ising(Q,N,kT_list[index],lattice)
 
@@ -137,7 +137,7 @@ def create_datasets(f,ising_config,mag,temp,label,dset_type):
 
 	print("made %s h5 file. no. of events to %s on: %i"%(dset_type,dset_type,len(label)))
 
-N_list = [20]
+N_list = [10]
 J = 1
 date = 'dec10'
 end = 0
