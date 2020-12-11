@@ -22,13 +22,13 @@ def monte_carlo_ising(Q,N,kT,lattice):
 	accept = 0
 
 	for index in range(0,Q):
-
+		
+		if(index%100000==0):
+			print(index)
 		E_i,E_f=0,0
 		#generate a random no i and j for index of spin to be flipped
 		i,j,r = rng.randint(0,N), rng.randint(0,N), rng.uniform(0,1)
-		
 		#Compute energy for both configs
-
 		#check right
 		if(j!=N-1):
 			E_i+=-(lattice[i,j]*lattice[i,j+1])
@@ -77,7 +77,7 @@ def monte_carlo_ising(Q,N,kT,lattice):
 @jit
 def generate_data_perN(N,date,n_per_T,n_temps,T_c):
 
-	Q = 10000 #for testing
+	Q = 10 #for testing
 
 	ising_config = np.zeros((n_per_T*n_temps,N,N))
 	mag = np.zeros((n_per_T*n_temps,1))	
@@ -97,14 +97,14 @@ def generate_data_perN(N,date,n_per_T,n_temps,T_c):
 		print('Generating for T = ',kT_list[index])
 		#Start off with a random config
 		lattice = rng.choice([1, -1], size=(N, N))
-		'''
+		
 		if(kT_list[index]<2.):
-			Q = 100000000
+			Q = 50000000
 		elif(kT_list[index]<2.4):
 			Q = 2000000
 		else:
 			Q = 500000
-		'''
+		
 		ising_config_perT, mag_perT = monte_carlo_ising(Q,N,kT_list[index],lattice)
 
 		#sample configs evenly spaced
@@ -137,7 +137,7 @@ def create_datasets(f,ising_config,mag,temp,label,dset_type):
 
 	print("made %s h5 file. no. of events to %s on: %i"%(dset_type,dset_type,len(label)))
 
-N_list = [10]
+N_list = [20]
 J = 1
 date = 'dec10'
 end = 0
