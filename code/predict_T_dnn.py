@@ -109,9 +109,9 @@ for index in range(len(T_list)):
 
 Tc = 2.268
 
-plt.plot(T_list,output_per_T,'o-')
-plt.plot(T_list,(1-output_per_T),'o-')
-plt.plot([Tc,Tc],[0,1])
+plt.plot(T_list,output_per_T,'o-',label='T<Tc')
+plt.plot(T_list,(1-output_per_T),'o-',label='T>Tc')
+plt.plot([Tc,Tc],[0,1],label='Tc = 2.268')
 plt.xlabel('T/J')
 plt.ylabel('Output layer')
 plt.title('Output layer predictions for N = %i'%(N))
