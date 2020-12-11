@@ -68,14 +68,14 @@ model = Model(inputs=inputs,
  # Display a model summary
 model.summary()
 
-history = model.load_weights("checkpoints/cp_%s.ckpt"%(img_ext))
+#history = model.load_weights("checkpoints/cp_%s.ckpt"%(img_ext))
 
 # Compile the model
 model.compile(loss=loss_function,
               optimizer=optimizer,
               metrics=['accuracy']
               )
-'''
+
 callbacks = [
 EarlyStopping(patience=2),
 ModelCheckpoint(filepath="checkpoints/cp_%s.ckpt"%(img_ext),
@@ -89,9 +89,19 @@ history = model.fit(ising_train, label_train,
                 epochs=n_epochs,
                 callbacks=callbacks,
                 validation_split=validation_split)
-'''
-# Generate generalization metrics
+
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.title('Model loss of the network for N = %i'%(N))
+plt.ylabel('loss')
+plt.xlabel('epoch')
+plt.legend(['training loss', 'validation loss'], loc='upper right')
+plt.savefig("plots/loss_N%i_%s.png"%(N,img_ext))
+plt.close()
+
 print("training time ",time.clock()-train_time_s)
+
+#Make a prediction on the test set
 
 label_pred = model.predict(ising_test, batch_size=64)
 loss_vals, accuracy = model.evaluate(ising_test,label_test)
@@ -119,7 +129,7 @@ plt.xlabel('T/J')
 plt.ylabel('Output layer')
 plt.title('Output layer predictions for N = %i'%(N))
 plt.legend()
-plt.savefig("plots/output_per_T_N%i"%(N))
+plt.savefig("plots/output_per_T_N%i_%s"%(N,img_ext))
 plt.close()
 
 plt.plot(T_list,accuracy_per_T,'o-')
@@ -128,5 +138,5 @@ plt.xlabel('T/J')
 plt.ylabel('Accuracy')
 plt.title('Accuracy per T for N = %i'%(N))
 plt.legend()
-plt.savefig("plots/accuracy_per_T_N%i"%(N))
+plt.savefig("plots/accuracy_per_T_N%i_%s"%(N,img_ext))
 plt.close()
