@@ -102,9 +102,9 @@ print('accuracy = ',accuracy)
 #plot avg accuracy per T 
 
 T_list = np.linspace(1, 3.5, 40)
-
-for index in len(T_list):
-  idx = np.argwhere(temp_test==T)[:,0]
+output_per_T = np.zeros((40,1))
+for index in range(len(T_list)):
+  idx = np.argwhere(temp_test==T_list[index])[:,0]
   output_per_T[index]=np.mean(label_pred[idx])
 
 plt.plot(T_list,output_per_T,'o-')
