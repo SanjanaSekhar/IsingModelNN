@@ -107,7 +107,11 @@ for index in range(len(T_list)):
   idx = np.argwhere(temp_test==T_list[index])[:,0]
   output_per_T[index]=np.mean(label_pred[idx])
 
+y = 2.268
+
 plt.plot(T_list,output_per_T,'o-')
+plt.plot(T_list,(1-output_per_T),'o-')
+plt.plot(T_list,y)
 plt.xlabel('T/J')
 plt.ylabel('Output layer')
 plt.title('Output layer predictions for N = %i'%(N))
