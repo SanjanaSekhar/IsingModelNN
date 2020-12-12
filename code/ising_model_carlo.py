@@ -13,6 +13,14 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 import time
 import h5py
+from optparse import OptionParser
+from optparse import OptionGroup
+
+parser = OptionParser(usage="usage: %prog [options] in.root  \nrun with --help to get list of options")
+parser.add_option("-n", "--N", default = 10, type='int', help="Generate NxN matrices")
+
+(options, args) = parser.parse_args()
+
 
 @jit
 def monte_carlo_ising(Q,N,kT):
@@ -25,6 +33,10 @@ def monte_carlo_ising(Q,N,kT):
 		
 		if(index%80000==0):
 			lattice = rng.choice([1, -1], size=(N, N))
+			#force a distribution that has sufficient contris from mag=+-1
+			if(kT<1.6 and abs((2*np.sum(lattice.clip(0,1))-(N*N))/(N*N))<0.8):
+				index-=1
+				continue
 		if(index%1000000==0):
 			print(index)
 		E_i,E_f=0,0
@@ -97,19 +109,29 @@ def generate_data_perN(N,date,n_per_T,n_temps,T_c):
 	for index in range(len(kT_list)):
 
 		print('Generating for T = ',kT_list[index])
-		#Start off with a random config
-		
-		#lattice = rng.choice([1, -1], size=(N, N))
-		
-		if(kT_list[index]<1.5):
-			Q = 20000000
-		elif(kT_list[index]<2.):
-			Q = 10000000
-		elif(kT_list[index]<2.4):
-			Q = 1000000
+
+		#have to do this split for generating uncorrelated dsets for train and test
+		if(n_per_T<10000):
+
+			if(kT_list[index]<1.6):
+				Q = 1000000
+			elif(kT_list[index]<2.):
+				Q = 100000
+			elif(kT_list[index]<2.4):
+				Q = 100000
+			else:
+				Q = 70000
 		else:
-			Q = 700000
-		
+
+			if(kT_list[index]<1.6):
+				Q = 10000000
+			elif(kT_list[index]<2.):
+				Q = 1000000
+			elif(kT_list[index]<2.4):
+				Q = 1000000
+			else:
+				Q = 700000
+			
 		ising_config_perT, mag_perT = monte_carlo_ising(Q,N,kT_list[index])
 
 		#sample configs evenly spaced
@@ -142,32 +164,46 @@ def create_datasets(f,ising_config,mag,temp,label,dset_type):
 
 	print("made %s h5 file. no. of events to %s on: %i"%(dset_type,dset_type,len(label)))
 
-N_list = [10]
+N = options.N
 J = 1
-date = 'dec11'
+date = 'dec12'
 end = 0
-n_per_T = 25000
+
 n_temps = 40
 T_c = 2.268
-#n_train = int(n_per_T*n_temps*0.75) #75% of matrices will be for train+val
+# = int(n_per_T*n_temps*0.75) #75% of matrices will be for train+val
 #n_test = n_per_T*n_temps - n_train
 
-for N in N_list:
 
-	ising_config,mag,temp,label,time_perN = generate_data_perN(N,date,n_per_T,n_temps,T_c)
-	end+=time_perN
-	#shuffle entries
-	x = np.arange(0,n_per_T*n_temps,1)
-	p = rng.permutation(x)
-	ising_config,mag,temp,label = ising_config[p],mag[p],temp[p],label[p]	
+#training set
+n_per_T = 20000
+ising_config,mag,temp,label,time_perN = generate_data_perN(N,date,n_per_T,n_temps,T_c)
+end+=time_perN
+#shuffle entries
+x = np.arange(0,n_per_T*n_temps,1)
+p = rng.permutation(x)
+ising_config,mag,temp,label = ising_config[p],mag[p],temp[p],label[p]	
 
-	#create h5 files
-	#remember configs are being stored as NxN
-	#need to flatten for DNN or reshape for CNN
-	f = h5py.File("h5_files/train_N%i_%s.hdf5"%(N,date), "w")
-	create_datasets(f,ising_config,mag,temp,label,'train')
-	#f = h5py.File("h5_files/test_N%i_%s.hdf5"%(N,date), "w")
-	#create_datasets(f,ising_config[n_train:],mag[n_train:],temp[n_train:],label[n_train:],'test')
+#create h5 files
+#remember configs are being stored as NxN
+#need to flatten for DNN or reshape for CNN
+f = h5py.File("h5_files/train_N%i_%s.hdf5"%(N,date), "w")
+create_datasets(f,ising_config,mag,temp,label,'train')
+
+#testing set
+n_per_T = 8000
+ising_config,mag,temp,label,time_perN = generate_data_perN(N,date,n_per_T,n_temps,T_c)
+end+=time_perN
+#shuffle entries
+x = np.arange(0,n_per_T*n_temps,1)
+p = rng.permutation(x)
+ising_config,mag,temp,label = ising_config[p],mag[p],temp[p],label[p]	
+
+#create h5 files
+#remember configs are being stored as NxN
+#need to flatten for DNN or reshape for CNN
+f = h5py.File("h5_files/test_N%i_%s.hdf5"%(N,date), "w")
+create_datasets(f,ising_config,mag,temp,label,'test')
 
 print('total time taken for MC generation = ',time_perN)
 
