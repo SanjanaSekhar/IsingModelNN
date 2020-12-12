@@ -164,8 +164,8 @@ T_c = 2.268
 
 #training set
 end = 0
-n_per_T = 20000
-ising_config,mag,temp,label,time_perN = generate_data_perN(N,date,n_per_T,n_temps,T_c,dset_type)
+n_per_T = 30000
+ising_config,mag,temp,label,time_perN = generate_data_perN(N,date,n_per_T,n_temps,T_c,'train')
 end+=time_perN
 #shuffle entries
 x = np.arange(0,n_per_T*n_temps,1)
@@ -183,7 +183,7 @@ print('total time taken for MC generation = ',time_perN)
 #testing set
 end = 0
 n_per_T = 8000
-ising_config,mag,temp,label,time_perN = generate_data_perN(N,date,n_per_T,n_temps,T_c,dset_type)
+ising_config,mag,temp,label,time_perN = generate_data_perN(N,date,n_per_T,n_temps,T_c,'test')
 end+=time_perN
 #shuffle entries
 x = np.arange(0,n_per_T*n_temps,1)
