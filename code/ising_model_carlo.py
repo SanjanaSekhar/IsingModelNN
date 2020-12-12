@@ -20,7 +20,7 @@ def monte_carlo_ising(Q,N,kT):
 	ising = np.zeros((Q,N,N))
 	mag = np.zeros((Q,1))
 	accept = 0
-
+	lattice = rng.choice([1, -1], size=(N, N))
 	for index in range(0,Q):
 		
 		if(index%100000==0):
@@ -147,7 +147,7 @@ n_per_T = 25000
 n_temps = 40
 T_c = 2.268
 #n_train = int(n_per_T*n_temps*0.75) #75% of matrices will be for train+val
-n_test = n_per_T*n_temps - n_train
+#n_test = n_per_T*n_temps - n_train
 
 for N in N_list:
 
