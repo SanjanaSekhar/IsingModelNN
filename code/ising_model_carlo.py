@@ -23,8 +23,9 @@ def monte_carlo_ising(Q,N,kT):
 	lattice = rng.choice([1, -1], size=(N, N))
 	for index in range(0,Q):
 		
-		if(index%100000==0):
+		if(index%80000==0):
 			lattice = rng.choice([1, -1], size=(N, N))
+		if(index%1000000==0):
 			print(index)
 		E_i,E_f=0,0
 		#generate a random no i and j for index of spin to be flipped
@@ -100,7 +101,9 @@ def generate_data_perN(N,date,n_per_T,n_temps,T_c):
 		
 		#lattice = rng.choice([1, -1], size=(N, N))
 		
-		if(kT_list[index]<2.):
+		if(kT_list[index]<1.5):
+			Q = 20000000
+		elif(kT_list[index]<2.):
 			Q = 10000000
 		elif(kT_list[index]<2.4):
 			Q = 1000000
