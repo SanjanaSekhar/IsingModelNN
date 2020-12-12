@@ -89,7 +89,7 @@ def monte_carlo_ising(Q,N,kT):
 	return ising[:accept],mag[:accept]
 
 @jit
-def generate_data_perN(N,date,n_per_T,n_temps,T_c):
+def generate_data_perN(N,date,n_per_T,n_temps,T_c,dset_type):
 
 	Q = 10 #for testing
 
@@ -103,7 +103,7 @@ def generate_data_perN(N,date,n_per_T,n_temps,T_c):
 	#sample from 40 temperatures 
 	kT_list = np.linspace(1,3.5,n_temps)
 
-	pp = PdfPages('plots/mag_perT_N%i_%s.pdf'%(N,date))
+	pp = PdfPages('plots/mag_perT_N%i_%s_%s.pdf'%(N,dset_type,date))
 
 	start = time.clock()
 	for index in range(len(kT_list)):
@@ -111,26 +111,15 @@ def generate_data_perN(N,date,n_per_T,n_temps,T_c):
 		print('Generating for T = ',kT_list[index])
 
 		#have to do this split for generating uncorrelated dsets for train and test
-		if(n_per_T<10000):
-
-			if(kT_list[index]<1.6):
-				Q = 1000000
-			elif(kT_list[index]<2.):
-				Q = 100000
-			elif(kT_list[index]<2.4):
-				Q = 100000
-			else:
-				Q = 70000
+		
+		if(kT_list[index]<1.6):
+			Q = 10000000
+		elif(kT_list[index]<2.):
+			Q = 1000000
+		elif(kT_list[index]<2.4):
+			Q = 1000000
 		else:
-
-			if(kT_list[index]<1.6):
-				Q = 10000000
-			elif(kT_list[index]<2.):
-				Q = 1000000
-			elif(kT_list[index]<2.4):
-				Q = 1000000
-			else:
-				Q = 700000
+			Q = 700000
 			
 		ising_config_perT, mag_perT = monte_carlo_ising(Q,N,kT_list[index])
 
@@ -167,17 +156,16 @@ def create_datasets(f,ising_config,mag,temp,label,dset_type):
 N = options.N
 J = 1
 date = 'dec12'
-end = 0
+
 
 n_temps = 40
 T_c = 2.268
-# = int(n_per_T*n_temps*0.75) #75% of matrices will be for train+val
-#n_test = n_per_T*n_temps - n_train
 
 
 #training set
+end = 0
 n_per_T = 20000
-ising_config,mag,temp,label,time_perN = generate_data_perN(N,date,n_per_T,n_temps,T_c)
+ising_config,mag,temp,label,time_perN = generate_data_perN(N,date,n_per_T,n_temps,T_c,dset_type)
 end+=time_perN
 #shuffle entries
 x = np.arange(0,n_per_T*n_temps,1)
@@ -190,9 +178,12 @@ ising_config,mag,temp,label = ising_config[p],mag[p],temp[p],label[p]
 f = h5py.File("h5_files/train_N%i_%s.hdf5"%(N,date), "w")
 create_datasets(f,ising_config,mag,temp,label,'train')
 
+print('total time taken for MC generation = ',time_perN)
+
 #testing set
+end = 0
 n_per_T = 8000
-ising_config,mag,temp,label,time_perN = generate_data_perN(N,date,n_per_T,n_temps,T_c)
+ising_config,mag,temp,label,time_perN = generate_data_perN(N,date,n_per_T,n_temps,T_c,dset_type)
 end+=time_perN
 #shuffle entries
 x = np.arange(0,n_per_T*n_temps,1)
