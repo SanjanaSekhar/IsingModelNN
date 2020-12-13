@@ -117,7 +117,7 @@ def generate_data_perN(N,date,n_per_T,n_temps,T_c,dset_type):
 
 		#have to do this split for generating uncorrelated dsets for train and test
 		
-		Q=20000000
+		Q=10500000
 			
 		ising_config_perT, mag_perT = monte_carlo_ising(Q,N,kT_list[index])
 
@@ -162,7 +162,7 @@ T_c = 2.268
 
 #training set
 end = 0
-n_per_T = 10000
+n_per_T = 7000
 ising_config,mag,temp,label,time_perN = generate_data_perN(N,date,n_per_T,n_temps,T_c,'train')
 end+=time_perN
 #shuffle entries
@@ -180,7 +180,7 @@ print('total time taken for MC generation = ',time_perN)
 
 #testing set
 end = 0
-n_per_T = 3000
+n_per_T = 1000
 ising_config,mag,temp,label,time_perN = generate_data_perN(N,date,n_per_T,n_temps,T_c,'test')
 end+=time_perN
 #shuffle entries
