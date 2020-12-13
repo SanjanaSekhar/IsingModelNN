@@ -28,14 +28,13 @@ def monte_carlo_ising(Q,N,kT):
 	ising = np.zeros((Q,N,N))
 	mag = np.zeros((Q,1))
 	accept = 0
-	lattice = rng.choice([1, -1], size=(N, N))
-	if(kT<2.):
-		lattice = np.ones((N,N))
+	lattice_first = rng.choice([1, -1], size=(N, N))
+	lattice = np.copy(lattice_first)
 	for index in range(1,Q):
 		
 		if(kT<2. and index%5000000==0):
-			lattice = -np.ones((N,N))
-		elif(kT>2. and index%500000):
+			lattice = -lattice_first
+		elif(kT>2. and index%500000==0):
 			lattice = rng.choice([1, -1], size=(N, N))
 
 		if(index%1000000==0):
@@ -106,7 +105,7 @@ def generate_data_perN(N,date,n_per_T,n_temps,T_c,dset_type):
 
 	print("=================== N = %i ==================="%(N))
 	#sample from 40 temperatures 
-	kT_list = np.linspace(1,3.5,n_temps)
+	kT_list = np.linspace(1.2,3.2,n_temps)
 
 	pp = PdfPages('plots/mag_perT_N%i_%s_%s.pdf'%(N,dset_type,date))
 
@@ -133,6 +132,7 @@ def generate_data_perN(N,date,n_per_T,n_temps,T_c,dset_type):
 		plt.title('Probability of magnetization for T = %0.2f'%(kT_list[index]))
 		plt.xlabel('magnetization')
 		pp.savefig()
+		plt.show()
 		plt.close()
 
 	pp.close()
@@ -153,10 +153,10 @@ def create_datasets(f,ising_config,mag,temp,label,dset_type):
 
 N = options.N
 J = 1
-date = 'dec12'
+date = 'dec13'
 
 
-n_temps = 40
+n_temps = 30
 T_c = 2.268
 
 
