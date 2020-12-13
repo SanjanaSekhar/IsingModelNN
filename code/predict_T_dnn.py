@@ -50,7 +50,7 @@ for N in [10,20,30,40]:
   # Model configuration according to paper
   batch_size = 32
   loss_function = 'binary_crossentropy'
-  n_epochs = 2
+  n_epochs = 20
   optimizer = Adam()
   validation_split = 0.2
 
