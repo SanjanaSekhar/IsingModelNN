@@ -31,7 +31,7 @@ def monte_carlo_ising(Q,N,kT):
 	lattice = rng.choice([1, -1], size=(N, N))
 	if(kT<2.):
 		lattice = np.ones((N,N))
-	for index in range(0,Q):
+	for index in range(1,Q):
 		
 		if(kT<2. and index%5000000==0):
 			lattice = -np.ones((N,N))
@@ -86,7 +86,7 @@ def monte_carlo_ising(Q,N,kT):
 			#M = (N_plus - N_minus)/(N*N)
 			mag[accept] = (2*np.sum(lattice.clip(0,1))-(N*N))/(N*N)
 			accept+=1
-			if(accept>500000):
+			if(accept>800000):
 				break
 
 
@@ -117,7 +117,7 @@ def generate_data_perN(N,date,n_per_T,n_temps,T_c,dset_type):
 
 		#have to do this split for generating uncorrelated dsets for train and test
 		
-		Q=10000000
+		Q=20000000
 			
 		ising_config_perT, mag_perT = monte_carlo_ising(Q,N,kT_list[index])
 
@@ -162,7 +162,7 @@ T_c = 2.268
 
 #training set
 end = 0
-n_per_T = 20000
+n_per_T = 10000
 ising_config,mag,temp,label,time_perN = generate_data_perN(N,date,n_per_T,n_temps,T_c,'train')
 end+=time_perN
 #shuffle entries
@@ -180,7 +180,7 @@ print('total time taken for MC generation = ',time_perN)
 
 #testing set
 end = 0
-n_per_T = 4000
+n_per_T = 3000
 ising_config,mag,temp,label,time_perN = generate_data_perN(N,date,n_per_T,n_temps,T_c,'test')
 end+=time_perN
 #shuffle entries
