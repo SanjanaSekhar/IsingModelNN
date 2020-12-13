@@ -29,16 +29,18 @@ def monte_carlo_ising(Q,N,kT):
 	mag = np.zeros((Q,1))
 	accept = 0
 	lattice = rng.choice([1, -1], size=(N, N))
+	if(kT<2.):
+		lattice = np.ones((N,N))
 	for index in range(0,Q):
 		
-		if(index%80000==0):
+		if(kT<2. and index%5000000==0):
+			lattice = -np.ones((N,N))
+		elif(kT>2. and index%500000):
 			lattice = rng.choice([1, -1], size=(N, N))
-			#force a distribution that has sufficient contris from mag=+-1
-			if(kT<1.6 and abs((2*np.sum(lattice.clip(0,1))-(N*N))/(N*N))<0.8):
-				index-=1
-				continue
+
 		if(index%1000000==0):
 			print(index)
+
 		E_i,E_f=0,0
 		#generate a random no i and j for index of spin to be flipped
 		i,j,r = rng.randint(0,N), rng.randint(0,N), rng.uniform(0,1)
@@ -84,6 +86,9 @@ def monte_carlo_ising(Q,N,kT):
 			#M = (N_plus - N_minus)/(N*N)
 			mag[accept] = (2*np.sum(lattice.clip(0,1))-(N*N))/(N*N)
 			accept+=1
+			if(accept>500000):
+				break
+
 
 	print('accept = ',accept)
 	return ising[:accept],mag[:accept]
@@ -112,14 +117,7 @@ def generate_data_perN(N,date,n_per_T,n_temps,T_c,dset_type):
 
 		#have to do this split for generating uncorrelated dsets for train and test
 		
-		if(kT_list[index]<1.6):
-			Q = 3000000
-		elif(kT_list[index]<2.):
-			Q = 800000
-		elif(kT_list[index]<2.4):
-			Q = 500000
-		else:
-			Q = 300000
+		Q=10000000
 			
 		ising_config_perT, mag_perT = monte_carlo_ising(Q,N,kT_list[index])
 
