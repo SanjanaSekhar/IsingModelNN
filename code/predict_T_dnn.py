@@ -23,8 +23,8 @@ import time
 from keras.callbacks import EarlyStopping
 
 N = 10
-h5_date = "dec10"
-img_ext = "dec10"
+h5_date = "dec12"
+img_ext = "dec12"
 
 # Load data
 f = h5py.File('h5_files/train_N%i_%s.hdf5'%(N,h5_date), 'r')
