@@ -24,7 +24,7 @@ from keras.callbacks import EarlyStopping
 
 
 h5_date = "dec13"
-img_ext = "dec13_2"
+img_ext = "dec13_submission"
 Tc = 2.268
 accuracy_perT_allN = np.zeros((4,30))
 j = 0

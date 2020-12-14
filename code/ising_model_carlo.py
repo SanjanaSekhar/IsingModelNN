@@ -37,7 +37,6 @@ def monte_carlo_ising(Q,N,kT):
 
 		elif(N>10 and kT<2. and index%5000000==0):
 			lattice = -lattice_first
-		
 		elif(kT>2. and index%1000000==0):
 			lattice = rng.choice([1, -1], size=(N, N))
 
@@ -134,7 +133,7 @@ def generate_data_perN(N,date,n_per_T,n_temps,T_c,dset_type):
 		plt.title('Probability of magnetization for T = %0.2f'%(kT_list[index]))
 		plt.xlabel('magnetization')
 		pp.savefig()
-		#plt.show()
+		if(kT_list[index]==1.2): plt.show()
 		plt.close()
 
 	pp.close()
