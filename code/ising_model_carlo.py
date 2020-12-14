@@ -32,7 +32,7 @@ def monte_carlo_ising(Q,N,kT):
 	lattice = np.copy(lattice_first)
 	for index in range(1,Q):
 		
-		if(kT<2. and index%5000000==0):
+		if(kT<2. and index%2500000==0):
 			lattice = -lattice_first
 		elif(kT>2. and index%500000==0):
 			lattice = rng.choice([1, -1], size=(N, N))
@@ -95,7 +95,7 @@ def monte_carlo_ising(Q,N,kT):
 @jit
 def generate_data_perN(N,date,n_per_T,n_temps,T_c,dset_type):
 
-	Q = 10 #for testing
+	Q = 10500000 #for testing
 
 	ising_config = np.zeros((n_per_T*n_temps,N,N))
 	mag = np.zeros((n_per_T*n_temps,1))	
@@ -116,8 +116,6 @@ def generate_data_perN(N,date,n_per_T,n_temps,T_c,dset_type):
 
 		#have to do this split for generating uncorrelated dsets for train and test
 		
-		Q=10500000
-			
 		ising_config_perT, mag_perT = monte_carlo_ising(Q,N,kT_list[index])
 
 		#sample configs evenly spaced
@@ -132,7 +130,7 @@ def generate_data_perN(N,date,n_per_T,n_temps,T_c,dset_type):
 		plt.title('Probability of magnetization for T = %0.2f'%(kT_list[index]))
 		plt.xlabel('magnetization')
 		pp.savefig()
-		plt.show()
+		#plt.show()
 		plt.close()
 
 	pp.close()
@@ -162,7 +160,7 @@ T_c = 2.268
 
 #training set
 end = 0
-n_per_T = 7000
+n_per_T = 15000
 ising_config,mag,temp,label,time_perN = generate_data_perN(N,date,n_per_T,n_temps,T_c,'train')
 end+=time_perN
 #shuffle entries
@@ -180,7 +178,7 @@ print('total time taken for MC generation = ',time_perN)
 
 #testing set
 end = 0
-n_per_T = 1000
+n_per_T = 4500
 ising_config,mag,temp,label,time_perN = generate_data_perN(N,date,n_per_T,n_temps,T_c,'test')
 end+=time_perN
 #shuffle entries

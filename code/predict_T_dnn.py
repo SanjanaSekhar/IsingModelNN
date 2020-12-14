@@ -23,13 +23,13 @@ import time
 from keras.callbacks import EarlyStopping
 
 
-h5_date = "dec12"
-img_ext = "dec13"
+h5_date = "dec13"
+img_ext = "dec13_2"
 Tc = 2.268
-accuracy_perT_allN = np.zeros((4,40))
+accuracy_perT_allN = np.zeros((3,30))
 j = 0
 
-for N in [10,20,30,40]:
+for N in [10,20,30]:
 
   # Load data
   f = h5py.File('h5_files/train_N%i_%s.hdf5'%(N,h5_date), 'r')
@@ -116,9 +116,9 @@ for N in [10,20,30,40]:
   #plot avg output layer prediction per T
   #plot avg accuracy per T 
 
-  T_list = np.linspace(1, 3.5, 40)
-  output_per_T = np.zeros((40,1))
-  accuracy_per_T = np.zeros((40,1))
+  T_list = np.linspace(1.2, 3.2, 30)
+  output_per_T = np.zeros((30,1))
+  accuracy_per_T = np.zeros((30,1))
 
   for index in range(len(T_list)):
     idx = np.argwhere(temp_test==T_list[index])[:,0]
@@ -148,7 +148,7 @@ for N in [10,20,30,40]:
   plt.savefig("plots/accuracy_per_T_N%i_%s"%(N,img_ext))
   plt.close()
 
-for index in [0,1,2,3]:
+for index in [0,1,2]:
   plt.plot(T_list,accuracy_perT_allN[index],'o-',label='N = %i'%(10*(index+1)))
 
 plt.plot([Tc,Tc],[0,1],label='Tc = 2.268')
