@@ -32,9 +32,13 @@ def monte_carlo_ising(Q,N,kT):
 	lattice = np.copy(lattice_first)
 	for index in range(1,Q):
 		
-		if(kT<2. and index%2500000==0):
+		if(N==10 and kT<2. and index%2500000==0):
 			lattice = -lattice_first
-		elif(kT>2. and index%500000==0):
+
+		elif(N>10 and kT<2. and index%5000000==0):
+			lattice = -lattice_first
+		
+		elif(kT>2. and index%1000000==0):
 			lattice = rng.choice([1, -1], size=(N, N))
 
 		if(index%1000000==0):
